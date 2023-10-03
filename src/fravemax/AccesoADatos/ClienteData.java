@@ -26,19 +26,20 @@ public class ClienteData {
     }
     
     public void agregarCliente(Cliente cliente){
-        String sql="insert into cliente(apellido,nombre,domicilio,telefono)"
-                + "values(?,?,?,?)";
+        String sql="insert into cliente(dni,apellido,nombre,domicilio,telefono)"
+                + "values(?,?,?,?,?)";
         try {
             PreparedStatement ps=con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1,cliente.getApellido());
-            ps.setString(2,cliente.getNombre());
-            ps.setString(3,cliente.getDomicilio());
-            ps.setString(4,cliente.getTelefono());
+            ps.setInt(1,cliente.getDni());
+            ps.setString(2,cliente.getApellido());
+            ps.setString(3,cliente.getNombre());
+            ps.setString(4,cliente.getDomicilio());
+            ps.setString(5,cliente.getTelefono());
             ps.executeUpdate();
             
             ResultSet rs=ps.getGeneratedKeys();
             if(rs.next()){
-                cliente.setIdCliente(1);
+                cliente.setIdCliente(rs.getInt(1));
                 JOptionPane.showMessageDialog(null,"Cliente agregado "+cliente.getIdCliente());
             }
             ps.close();
