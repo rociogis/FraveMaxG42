@@ -29,11 +29,11 @@ public class MenuProvisorio extends javax.swing.JFrame {
         jdpEscritorio.setLayout(jdpEscritorioLayout);
         jdpEscritorioLayout.setHorizontalGroup(
             jdpEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 473, Short.MAX_VALUE)
+            .addGap(0, 732, Short.MAX_VALUE)
         );
         jdpEscritorioLayout.setVerticalGroup(
             jdpEscritorioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 355, Short.MAX_VALUE)
+            .addGap(0, 650, Short.MAX_VALUE)
         );
 
         jmCliente.setText("Cliente");
@@ -45,6 +45,11 @@ public class MenuProvisorio extends javax.swing.JFrame {
         jMenuBar1.add(jmCliente);
 
         jmProducto.setText("Producto");
+        jmProducto.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jmProductoMouseClicked(evt);
+            }
+        });
         jMenuBar1.add(jmProducto);
 
         jmVenta.setText("Venta");
@@ -81,7 +86,7 @@ public class MenuProvisorio extends javax.swing.JFrame {
     private void jmClienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jmClienteMouseClicked
         jdpEscritorio.removeAll();
         jdpEscritorio.repaint();
-        ClienteNuevo nc = new ClienteNuevo();
+        ClienteFormulario nc = new ClienteFormulario();
         nc.setVisible(true);
         jdpEscritorio.add(nc);
         jdpEscritorio.moveToFront(nc);
@@ -92,6 +97,15 @@ public class MenuProvisorio extends javax.swing.JFrame {
         jdpEscritorio.repaint();
         System.exit(0);
     }//GEN-LAST:event_jmSalirMouseClicked
+
+    private void jmProductoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jmProductoMouseClicked
+        jdpEscritorio.removeAll();
+        jdpEscritorio.repaint();
+        ProductoFormulario pf = new ProductoFormulario();
+        pf.setVisible(true);
+        jdpEscritorio.add(pf);
+        jdpEscritorio.moveToFront(pf);
+    }//GEN-LAST:event_jmProductoMouseClicked
 
 
     public static void main(String args[]) {
