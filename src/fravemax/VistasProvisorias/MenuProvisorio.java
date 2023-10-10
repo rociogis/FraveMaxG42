@@ -19,8 +19,8 @@ public class MenuProvisorio extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jmCliente = new javax.swing.JMenu();
         jmProducto = new javax.swing.JMenu();
+        jmDetalleVenta = new javax.swing.JMenu();
         jmVenta = new javax.swing.JMenu();
-        jmiDetalleVenta = new javax.swing.JMenuItem();
         jmSalir = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -52,11 +52,15 @@ public class MenuProvisorio extends javax.swing.JFrame {
         });
         jMenuBar1.add(jmProducto);
 
+        jmDetalleVenta.setText("Detalle de Venta");
+        jMenuBar1.add(jmDetalleVenta);
+
         jmVenta.setText("Venta");
-
-        jmiDetalleVenta.setText("DetalleVenta");
-        jmVenta.add(jmiDetalleVenta);
-
+        jmVenta.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jmVentaMouseClicked(evt);
+            }
+        });
         jMenuBar1.add(jmVenta);
 
         jmSalir.setText("Salir");
@@ -107,6 +111,15 @@ public class MenuProvisorio extends javax.swing.JFrame {
         jdpEscritorio.moveToFront(pf);
     }//GEN-LAST:event_jmProductoMouseClicked
 
+    private void jmVentaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jmVentaMouseClicked
+        jdpEscritorio.removeAll();
+        jdpEscritorio.repaint();
+        VentaFormulario vf = new VentaFormulario();
+        vf.setVisible(true);
+        jdpEscritorio.add(vf);
+        jdpEscritorio.moveToFront(vf);
+    }//GEN-LAST:event_jmVentaMouseClicked
+
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -144,9 +157,9 @@ public class MenuProvisorio extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JDesktopPane jdpEscritorio;
     private javax.swing.JMenu jmCliente;
+    private javax.swing.JMenu jmDetalleVenta;
     private javax.swing.JMenu jmProducto;
     private javax.swing.JMenu jmSalir;
     private javax.swing.JMenu jmVenta;
-    private javax.swing.JMenuItem jmiDetalleVenta;
     // End of variables declaration//GEN-END:variables
 }

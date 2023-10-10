@@ -20,17 +20,18 @@
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jmProductoMouseClicked"/>
           </Events>
         </Menu>
+        <Menu class="javax.swing.JMenu" name="jmDetalleVenta">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Detalle de Venta"/>
+          </Properties>
+        </Menu>
         <Menu class="javax.swing.JMenu" name="jmVenta">
           <Properties>
             <Property name="text" type="java.lang.String" value="Venta"/>
           </Properties>
-          <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="jmiDetalleVenta">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="DetalleVenta"/>
-              </Properties>
-            </MenuItem>
-          </SubComponents>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jmVentaMouseClicked"/>
+          </Events>
         </Menu>
         <Menu class="javax.swing.JMenu" name="jmSalir">
           <Properties>
