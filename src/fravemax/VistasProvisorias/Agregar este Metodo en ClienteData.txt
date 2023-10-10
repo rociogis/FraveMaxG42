@@ -1,0 +1,31 @@
+/*Este metodo se emplea para llenar el combo box de la vista >>> FormularioVenta*/
+public List<Cliente> listarClientes(){
+        
+            ArrayList<Cliente> clientes = new ArrayList<>();
+            String sql = "SELECT * FROM cliente ORDER BY dni DESC;";
+            
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+
+                Cliente cliente = new Cliente();
+                
+                cliente.setIdCliente(Long.parseLong(rs.getString("idCliente")));//Aquie pueden reemplazar el Long por Int
+                cliente.setApellido(rs.getString("apellido"));
+                cliente.setDni(Long.parseLong(rs.getString("dni")));//Aquie pueden reemplazar el Long por Int
+                cliente.setDomicilio(rs.getString("domicilio"));
+                cliente.setNombre(rs.getString("nombre"));
+                cliente.setTelefono(rs.getString("telefono"));
+                
+                clientes.add(cliente);
+                
+            }
+            ps.close();
+        } catch (SQLException sqlE) {
+            JOptionPane.showMessageDialog(null, "mmm... algo salio mal al acceder a la base de datos.");
+            sqlE.printStackTrace();
+        }
+            return clientes;
+    }
