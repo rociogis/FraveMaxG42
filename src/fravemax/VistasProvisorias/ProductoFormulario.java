@@ -262,6 +262,7 @@ ProductoData pData = new ProductoData();
             prod = instanciarDesdeCampos();
             //Envio de inf hacia BD.
             pData.registrarProducto(prod);
+            limpiarCamposYBotones();
             //No se emite ningun aviso aqui, pues registProd... lo hace si resulta exitoso el impacto en BD.
         }else{
             JOptionPane.showMessageDialog(this, "Id producto sera asignado por BD;\ndeje el campo(Id) vacio y reintente nuevamente.");
@@ -290,7 +291,7 @@ ProductoData pData = new ProductoData();
     private void jbBuscarProdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbBuscarProdActionPerformed
         //Verificacion del campo ID.
         if(verificarSiHayLetras(jtfIdProd.getText())){
-            JOptionPane.showMessageDialog(this, "Id productos acepta numeros unicamente\nsin ningun tipo de puntuacion,letrao o espacio en blanco.");
+            JOptionPane.showMessageDialog(this, "Id productos acepta numeros unicamente\nsin ningun tipo de puntuacion,letra o espacio en blanco.");
             return;
         }else if(excedeLongitudMax(jtfIdProd.getText(), 11)){
             JOptionPane.showMessageDialog(this, "Demasiados digitos!! Verifique sea correcto el Id introducido.");
@@ -417,6 +418,14 @@ ProductoData pData = new ProductoData();
                     jtfPrecioUnidadProveedor.getText().equals("") || jtfStockProd.getText().equals(""));     
     }
     
+    private boolean verificarSiHayCero(String cadena){
+        
+        if (cadena.equals("0")){
+        return true;
+        }
+        return false;
+    }
+    
     private boolean comprobarCamposAlGuardar(){//Mal! Se deben verificar los campos segun el orden que_ 
         if(verificarCamposVacios()){
             JOptionPane.showMessageDialog(this, "...mmm, ha dejado uno o mas campos vacios.");
@@ -431,6 +440,10 @@ ProductoData pData = new ProductoData();
         }
         if(verificarSiHayLetras(jtfStockProd.getText())){
             JOptionPane.showMessageDialog(this, "...mmm, parece que hay letras, donde no deberia.");
+            return true;
+        }
+        if(verificarSiHayCero(jtfStockProd.getText())){
+           JOptionPane.showMessageDialog(this, "No puede ser 0 el stock al REGISTRAR un producto");
             return true;
         }
         try{
