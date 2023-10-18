@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package fravemax.AccesoADatos;
 
 import fravemax.Entidades.DetalleVenta;
@@ -16,56 +12,103 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author 54351
- */
 public class DetalleVentaData {
-    private Connection con=null;
-    
+  
+    private Connection con = null;   
+  
     public DetalleVentaData(){
-        con=Conexion.getConexion();
+        con = Conexion.getConexion();
     }
-    
-    public void cargarDetalleVenta(DetalleVenta detVenta){
-        String sql="INSERT INTO detalleVenta(cantidad,idVenta,precioVenta,idProducto) "
-                + "VALUES(?,?,?,?)";
+  
+    public void cargarDetalleVenta(DetalleVenta detVent){
+        
+        String sql0 = "SELECT producto.stock, producto.estado FROM producto WHERE idProducto = ?;";
         try {
-            PreparedStatement ps=con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1,detVenta.getCantidad());
-            ps.setInt(2,detVenta.getVenta().getIdVenta());
-            ps.setDouble(3,detVenta.getPrecioVenta());
-            ps.setInt(4,detVenta.getProducto().getIdProducto());
             
-            ps.executeUpdate();
+            PreparedStatement ps=con.prepareStatement(sql0);
+            ps.setInt(1, detVent.getProducto().getIdProducto());
+            ResultSet rs = ps.executeQuery();
+            rs.next();
             
-            ResultSet rs=ps.getGeneratedKeys();
-            if(rs.next()){
-                detVenta.setIdDetalleVenta(rs.getInt(1));
-                JOptionPane.showMessageDialog(null,"DetalleVenta Cargado");
+            JOptionPane.showMessageDialog(null,"Cantidad : "+rs.getInt("stock")+" disponible : "+rs.getBoolean("estado"));
+            
+            if(!rs.getBoolean("estado")){
+                JOptionPane.showMessageDialog(null,"El producto no se encuentra disponible para la venta.\n Su estado es : "+rs.getBoolean("estado"));
+                ps.close();
+                rs = null;
+                return;//Si el producto tiene estado false, se informa y no se asienta en BD.
             }
+            
+            if(rs.getInt("stock")<detVent.getCantidad()){
+                JOptionPane.showMessageDialog(null,"Solo se dipone de : "+rs.getInt("stock")+" en stock.");
+                ps.close();
+                rs = null;
+                return;//Si la cantidad requerida(a comprar) es mayor que la disponible, se informa y no se asienta en BD.
+            }
+            
+            ps.close();
+        
+        }catch(SQLException sqlE){
+            JOptionPane.showMessageDialog(null,"Error al Acceder a la tabla");
+            sqlE.printStackTrace();//Permite ver el error por consola.
+        }
+        
+        //Esta modificacion solo se intenta si no se ejecuto el cuerpo de alguno de los if.
+        String sql1 = "INSERT INTO detalleventa(cantidad, idVenta, precioVenta, idProducto) VALUES (?,?,?,?);";
+        String sql2 = "UPDATE producto SET producto.stock = (producto.stock - ?) WHERE idProducto = ?;";
+        try {
+
+            PreparedStatement ps=con.prepareStatement(sql1,Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1,detVent.getCantidad());
+            ps.setInt(2,detVent.getVenta().getIdVenta());
+            ps.setDouble(3,detVent.getPrecioVenta());
+            ps.setInt(4,detVent.getProducto().getIdProducto());
+
+            ps.executeUpdate();
+            ResultSet rs=ps.getGeneratedKeys();
+
+            if(rs.next()){
+               detVent.setIdDetalleVenta(rs.getInt(1));
+                 JOptionPane.showMessageDialog(null,"DETALLE VENTA AGREGADO");
+            }
+
             ps.close();
             
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null,"Error al acceder a la tabla DetalleVenta");
+            //Aqui se intenta modificar el stock reduciendolo en la cantidad comprada.
+            ps=con.prepareStatement(sql2);
+            ps.setInt(1,detVent.getCantidad());
+            ps.setInt(2,detVent.getProducto().getIdProducto());
+            
+            int exito=ps.executeUpdate();
+            if(exito==1){
+                JOptionPane.showMessageDialog(null,"Stock Modificado");
+            }
+            
+            ps.close(); 
+
+        }catch(SQLException sqlE){
+                JOptionPane.showMessageDialog(null,"Error al Acceder a la tabla");
+                sqlE.printStackTrace();//Permite ver el error por consola.
         }
-                
-                
+        
     }
-    
+     
     public List<Producto>listarProductoXfecha(LocalDate fechaVenta){
-        String sql="SELECT * FROM producto WHERE producto.idProducto =  (SELECT detalleventa.IDProducto"
-                + " FROM Venta JOIN DetalleVenta ON venta.IDVenta = detalleventa.IDVenta"
-                + " WHERE venta.fechaVenta = ?)";
-        ArrayList<Producto>productos=new ArrayList();
+        String sql="SELECT * FROM producto WHERE producto.idProducto IN "+
+                    "(SELECT detalleventa.iDProducto FROM Venta JOIN DetalleVenta "+
+                        "ON venta.iDVenta = detalleventa.iDVenta WHERE venta.fechaVenta = ?);";
+        ArrayList<Producto>productos = null;
         try {
+            
             PreparedStatement ps=con.prepareStatement(sql);
+            ps.setDate(1, Date.valueOf(fechaVenta));
             ResultSet rs=ps.executeQuery();
+            
+            productos = new ArrayList();
             while(rs.next()){
+                
                 Producto prod=new Producto();
                 prod.setIdProducto(rs.getInt("idProducto"));
                 prod.setNombreProducto(rs.getString("nombreProducto"));
@@ -76,12 +119,55 @@ public class DetalleVentaData {
                 productos.add(prod);
                 
             }
+            
             ps.close();
-        } catch (SQLException ex) {
+            
+        } catch (SQLException sqlE) {
             JOptionPane.showMessageDialog(null,"Error al acceder a la tabla");
-        }
-        
+            sqlE.printStackTrace();//Permite ver el error por consola.
+        }    
       return productos;  
     }
     
+    public void eliminarDetalleVenta(int idDetalleVenta){
+        
+        String sql = "DELETE FROM detalleventa WHERE detalleventa.idDetalleVenta = ?;";
+ 
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            JOptionPane.showMessageDialog(null, "Va a eliminar el DetalleVenta" + idDetalleVenta);
+            ps.setInt(1, idDetalleVenta);
+            int exito = ps.executeUpdate();
+            if (exito == 1) {
+                JOptionPane.showMessageDialog(null, "DetalleVenta Eliminado");
+            }
+            ps.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al acceder a la tabla Detalleventa");
+            ex.printStackTrace();//Permite ver el error por consola.
+        }
+    }
+    
+    public void modificarVenta(DetalleVenta detalleventa){
+        
+        String sql = "UPDATE detalleventa SET cantidad = ?,idVenta= ?,precioVenta=?,idProducto=? "+
+                        "WHERE idDetalleVenta=?;";
+        
+        try {
+            PreparedStatement ps=con.prepareStatement(sql);
+            ps.setInt(1,detalleventa.getCantidad());
+            ps.setInt(2,detalleventa.getVenta().getIdVenta());
+            ps.setDouble(3,detalleventa.getPrecioVenta());
+            ps.setInt(4,detalleventa.getProducto().getIdProducto());
+            ps.setInt(5,detalleventa.getIdDetalleVenta());
+            int exito=ps.executeUpdate();
+            if(exito==1){
+                JOptionPane.showMessageDialog(null,"Detalleventa Modificada");
+            }
+            ps.close();    
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null,"Error al acceder a la tabla DetalleVenta");
+            ex.printStackTrace();//Permite ver el error por consola.
+        }     
+    }
 }
